@@ -4,9 +4,9 @@ This is the session 2 of the Kuhne Nagel intership I took part in.
 
 ### My contributions:
 
-- api
-- ui/src/api
-- ui/src/views/pages/location
+- api [Go to](https://github.com/silverpedak/Kuhne-Nagel-Intership-S2/tree/main/api)
+- ui/src/api [Go to](https://github.com/silverpedak/Kuhne-Nagel-Intership-S2/tree/main/ui/src/api)
+- ui/src/views/pages/location [Go to](https://github.com/silverpedak/Kuhne-Nagel-Intership-S2/tree/main/ui/src/views/pages/location)
 
 # Location
 
