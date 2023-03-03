@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "json-server": "json-server --watch ./data/db.js --port 8999 --delay 100"
+  },
+  "devDependencies": {
+    "json-server": "^0.17.1"
+  }
+}
