@@ -1,27 +1,32 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Card, CardHeader, CardBody, ButtonGroup, Button } from "reactstrap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 
-import { Location } from "@/types/domain/location-model.type";
+import { useAppDispatch, useAppSelector } from "@/redux/app/hooks";
+import { getAllLocations, getBuildingsByLocationId, selectAllLocationData } from "@/redux/features";
+
 import { ResizeMap } from "../common/ResizeMap";
 import { LocationMarkers } from "./LocationMarkers";
+import { BUILDINGS_MAIN } from "../location.routes.const";
 
 import "@/style.css";
 
 interface WorldMapProps {
-  locations: Location[];
-  onViewBuildings: (arg1: number) => void;
+  setActiveTab: (arg1: string) => void;
   setCenter: (arg1: LatLngExpression) => void;
 }
 
-const WorldMapLeafletPanel = ({
-  locations,
-  onViewBuildings,
-  setCenter,
-}: WorldMapProps): JSX.Element => {
+const WorldMapLeafletPanel = ({ setActiveTab, setCenter }: WorldMapProps): JSX.Element => {
   const [category, setCategory] = useState<number>(0);
   const [mapId] = useState<string>("world-map");
+  const locations = useAppSelector(selectAllLocationData);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getAllLocations());
+  }, []);
 
   const showOfficeMarker = () => {
     category !== 1 ? setCategory(1) : setCategory(0);
@@ -35,9 +40,11 @@ const WorldMapLeafletPanel = ({
   const showSalesMarker = () => {
     category !== 4 ? setCategory(4) : setCategory(0);
   };
+
   const onPopupClick = async (id: number, lat: number, lng: number) => {
-    await onViewBuildings(id);
     setCenter([lat, lng]);
+    dispatch(getBuildingsByLocationId(id));
+    setActiveTab(BUILDINGS_MAIN);
   };
 
   return (

@@ -3,32 +3,34 @@ import { Button, Card, CardBody, CardHeader } from "reactstrap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 
-import { Building } from "@/types/domain/building-model.type";
-import { WORLD_MAIN } from "../location.routes.const";
+import { useAppDispatch, useAppSelector } from "@/redux/app/hooks";
+import { getFloorsByBuildingId, selectAllBuildingsData, selectBuilding } from "@/redux/features";
 
 import { ResizeMap, ChangeCenter } from "../common";
 import { BuildingPolygon } from "./BuildingPolygon";
 import { BuildingLegend } from "./BuildingMapLegend";
+import { FLOORS_MAIN, WORLD_MAIN } from "../location.routes.const";
 
 import "@/style.css";
 
 interface BuildingsProps {
   center: LatLngExpression;
-  buildings: Building[];
   navigateToPanel: (arg1: string) => void;
-  onViewFloors: (id: number) => void;
 }
 
-const BuildingsMainPanel = ({
-  center,
-  buildings,
-  navigateToPanel,
-  onViewFloors,
-}: BuildingsProps) => {
+const BuildingsMainPanel = ({ center, navigateToPanel }: BuildingsProps) => {
   const [mapId] = useState<string>("buildings-map");
 
+  const buildings = useAppSelector(selectAllBuildingsData);
+  const dispatch = useAppDispatch();
+
   const onBuildingClick = (id: number) => {
-    onViewFloors(id);
+    dispatch(getFloorsByBuildingId(id));
+    const buildingFound = buildings.find(building => building.id === id);
+    if (buildingFound) {
+      dispatch(selectBuilding(buildingFound));
+    }
+    navigateToPanel(FLOORS_MAIN);
   };
 
   return (

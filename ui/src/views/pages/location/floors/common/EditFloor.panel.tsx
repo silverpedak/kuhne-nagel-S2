@@ -66,7 +66,10 @@ export const EditFloorPanel = ({
                   autoComplete="off"
                   value={floorUi.floorNr}
                   invalid={floorUi.floorNr === 0}
-                  onChange={e => setFloorUi({ ...floorUi, floorNr: parseInt(e.target.value) })}
+                  onChange={e => {
+                    const value = isNaN(parseInt(e.target.value)) ? 0 : parseInt(e.target.value);
+                    setFloorUi({ ...floorUi, floorNr: value });
+                  }}
                 />
                 <InputField
                   name="floorName"

@@ -1,5 +1,8 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+
+import { store } from "./redux/app";
 
 import { App } from "./app";
 
@@ -15,7 +18,9 @@ import "reactflow/dist/style.css";
 const root = createRoot(document.getElementById("root") as HTMLElement);
 
 root.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>
 );

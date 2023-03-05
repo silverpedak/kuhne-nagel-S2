@@ -22,7 +22,8 @@ import { Asset, Room, EMPTY_ASSET } from "@/types/domain";
 import { AssetUi, SelectOption } from "@/types/ui/common-ui";
 import { handleError } from "@/common/api-error-handler";
 import { AssetType, EMPTY_ASSET_UI, TYPE_OPTIONS } from "@/common/consts";
-
+import { useAppDispatch } from "@/redux/app/hooks";
+import { updateRoom } from "@/redux/features";
 import { alerts } from "@/views/components/feedback";
 
 import { CreateAssetPanel } from "./create-asset";
@@ -48,6 +49,8 @@ const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
   const [assetUi, setAssetUi] = useState<AssetUi>(EMPTY_ASSET_UI);
   const [createMode, setCreateMode] = useState<boolean>(false);
   const [addingNodeEnabled, setAddingNodeEnabled] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
 
   const toggleCreateMode = () => setCreateMode(!createMode);
   const toggleDetailsPanel = () => setIsDetailsPanelOpen(!isDetailsPanelOpen);
@@ -178,13 +181,10 @@ const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
   }, []);
 
   const saveRooms = async (rooms: Room[]) => {
-    try {
-      await Promise.all(rooms.map(room => roomService.updateRoom(room)));
-      alerts.successAlert("", "Saved!");
-      setCreateMode(false);
-    } catch (err) {
-      handleError(err);
+    for (let room of rooms) {
+      dispatch(updateRoom(room));
     }
+    alerts.successAlert("", "Saved!");
   };
 
   const onResetLayoutEdit = async () => {

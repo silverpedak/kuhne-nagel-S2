@@ -5,15 +5,18 @@ import { Card, CardHeader, CardBody, Row, Button } from "reactstrap";
 import { FLOORS_MAIN } from "../location.routes.const";
 
 import FloorFlowPanel from "./FloorFlow.panel";
-import { Floor, Room } from "@/types/domain";
+
+import { useAppSelector } from "@/redux/app/hooks";
+import { selectAllRoomsData, selectCurrentFloor } from "@/redux/features";
 
 interface FloorMainProps {
-  floor: Floor;
-  rooms: Room[];
   navigateToPanel: (arg1: string) => void;
 }
 
-const FloorMainPanel: React.FC<FloorMainProps> = ({ floor, rooms, navigateToPanel }) => {
+const FloorMainPanel: React.FC<FloorMainProps> = ({ navigateToPanel }) => {
+  const rooms = useAppSelector(selectAllRoomsData);
+  const floor = useAppSelector(selectCurrentFloor);
+
   return (
     <>
       <Row>

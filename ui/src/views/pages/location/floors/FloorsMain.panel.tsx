@@ -1,47 +1,50 @@
 import { memo, useState } from "react";
 import { Card, CardHeader, CardBody, Button, Row, Col, CardTitle } from "reactstrap";
 
-import { floorsService } from "@/api";
 import { alerts } from "@/views/components/feedback";
-import { handleError } from "@/common/api-error-handler";
-import { Building, EMPTY_FLOOR, Floor } from "@/types/domain";
+import { EMPTY_FLOOR, Floor } from "@/types/domain";
 
 import { CreateFloorPanel } from "./create/CreateFloor.panel";
 import { DetailsFloorPanel } from "./details/DetailsFloor.panel";
 
-import { BUILDINGS_MAIN } from "../location.routes.const";
+import { BUILDINGS_MAIN, FLOOR_MAIN } from "../location.routes.const";
+import { useAppDispatch, useAppSelector } from "@/redux/app/hooks";
+import {
+  createFloor,
+  deleteFloor,
+  getRoomsByFloorId,
+  selectAllFloorsData,
+  selectCurrentBuilding,
+  selectCurrentFloor,
+  selectFloor,
+  updateFloor,
+} from "@/redux/features";
 
 interface FloorsMainProps {
-  floors: Floor[];
-  building: Building;
   navigateToPanel: (arg1: string) => void;
-  onViewFloorPlan: (floorId: number) => void;
 }
 
-const FloorsMainPanel = ({
-  floors,
-  building,
-  navigateToPanel,
-  onViewFloorPlan,
-}: FloorsMainProps): JSX.Element => {
+const FloorsMainPanel = ({ navigateToPanel }: FloorsMainProps): JSX.Element => {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
-  const [currentFloor, setCurrentFloor] = useState<Floor>(EMPTY_FLOOR);
+
+  const floors = useAppSelector(selectAllFloorsData);
+  const building = useAppSelector(selectCurrentBuilding);
+  const currentFloor = useAppSelector(selectCurrentFloor);
+
+  const dispatch = useAppDispatch();
 
   const toggleIsEditModalOpen = () => setIsEditModalOpen(!isEditModalOpen);
   const toggleIsCreateModalOpen = () => setIsCreateModalOpen(!isCreateModalOpen);
 
-  const onViewDetails = (id: number) => {
-    const floorFound = floors.find(floor => floor.id === id);
-    if (floorFound) {
-      setCurrentFloor(floorFound);
-      toggleIsEditModalOpen();
-    }
+  const onViewDetails = (floor: Floor) => {
+    dispatch(selectFloor(floor));
+    setIsEditModalOpen(true);
   };
 
   const onOpenCreate = () => {
-    setCurrentFloor(EMPTY_FLOOR);
-    toggleIsCreateModalOpen();
+    dispatch(selectFloor(EMPTY_FLOOR));
+    setIsCreateModalOpen(true);
   };
 
   const onCreateFloor = async (newFloor: Floor) => {
@@ -50,46 +53,37 @@ const FloorsMainPanel = ({
       "Are you sure"
     );
     if (isConfirmed) {
-      try {
-        await floorsService.createFloor(newFloor);
-        alerts.successAlert("", "New floor created!");
-        toggleIsCreateModalOpen();
-      } catch (err) {
-        handleError(err);
-      }
+      await dispatch(createFloor(newFloor));
+      setIsCreateModalOpen(false);
     }
   };
 
-  const onEditFloor = async (editedFloor: Floor) => {
+  const onEditFloor = async (updatedFloor: Floor) => {
     const { isConfirmed } = await alerts.confirmActionSuccess(
       "you want to save changes?",
       "Are you sure"
     );
     if (isConfirmed) {
-      try {
-        await floorsService.updateFloor(editedFloor);
-        alerts.successAlert("", "Changes saved!");
-        toggleIsEditModalOpen();
-      } catch (err) {
-        handleError(err);
-      }
+      dispatch(updateFloor(updatedFloor));
+      setIsEditModalOpen(false);
     }
   };
 
-  const onDeleteFloor = async (floorId: number) => {
+  const onDeleteFloor = async (id: number) => {
     const { isConfirmed } = await alerts.confirmActionDanger(
       "you want to delete floor?",
       "Are you sure"
     );
     if (isConfirmed) {
-      try {
-        await floorsService.deleteFloor(floorId);
-        alerts.successAlert("Deleted!");
-        toggleIsEditModalOpen();
-      } catch (err) {
-        handleError(err);
-      }
+      await dispatch(deleteFloor(id));
+      setIsEditModalOpen(false);
     }
+  };
+
+  const onViewFloorPlan = (floor: Floor) => {
+    dispatch(getRoomsByFloorId(floor.id));
+    dispatch(selectFloor(floor));
+    navigateToPanel(FLOOR_MAIN);
   };
 
   return (
@@ -104,7 +98,7 @@ const FloorsMainPanel = ({
               </Button>
             </CardHeader>
             <CardBody>
-              {floors.map(floor => (
+              {floors.map((floor: Floor) => (
                 <Card key={floor.id}>
                   <CardHeader>
                     <Row className="d-flex align-items-center justify-content-between">
@@ -112,10 +106,10 @@ const FloorsMainPanel = ({
                         <h4 className="text-uppercase mb-0">{`${floor.floorNr} ${floor.name}`}</h4>
                       </Col>
                       <Col sm="2" className="d-flex justify-content-end">
-                        <Button size="sm" onClick={() => onViewDetails(floor.id)}>
+                        <Button size="sm" onClick={() => onViewDetails(floor)}>
                           <i className="fa fa-pen-to-square" />
                         </Button>
-                        <Button size="sm" onClick={() => onViewFloorPlan(floor.id)}>
+                        <Button size="sm" onClick={() => onViewFloorPlan(floor)}>
                           <i className="fa fa-arrow-right" />
                         </Button>
                       </Col>
