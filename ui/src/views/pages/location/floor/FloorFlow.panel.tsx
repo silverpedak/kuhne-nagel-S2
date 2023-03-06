@@ -17,11 +17,13 @@ import ReactFlow, {
 } from "reactflow";
 import { Button, ButtonGroup } from "reactstrap";
 
-import { Asset, Room } from "@/types/domain";
+import { roomService } from "@/api";
+import { Asset, Room, EMPTY_ASSET } from "@/types/domain";
 import { AssetUi, SelectOption } from "@/types/ui/common-ui";
+import { handleError } from "@/common/api-error-handler";
 import { AssetType, EMPTY_ASSET_UI, TYPE_OPTIONS } from "@/common/consts";
-import { useAppDispatch, useAppSelector } from "@/redux/app";
-import { selectAsset, selectCurrentAsset, updateRoom } from "@/redux/features";
+import { useAppDispatch } from "@/redux/app/hooks";
+import { updateRoom } from "@/redux/features";
 import { alerts } from "@/views/components/feedback";
 
 import { CreateAssetPanel } from "./create-asset";
@@ -35,20 +37,19 @@ interface FloorFlowProps {
 }
 
 const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
+  const { getNodes, project, addNodes, getIntersectingNodes } = useReactFlow();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const edgeUpdateSuccessful = useRef(true);
-  const { getNodes, project, addNodes, getIntersectingNodes } = useReactFlow();
-
   const [nodes, setNodes] = useNodesState(setupNodes(rooms));
   const [edges, setEdges] = useEdgesState(setupEdges(rooms));
   const [typeSelected, setTypeSelected] = useState<SelectOption>(TYPE_OPTIONS[0]);
+  const [currentAsset, setCurrentAsset] = useState<Asset>(EMPTY_ASSET);
   const [isDetailsPanelOpen, setIsDetailsPanelOpen] = useState<boolean>(false);
   const [isCreatePanelOpen, setIsCreatePanelOpen] = useState<boolean>(false);
   const [assetUi, setAssetUi] = useState<AssetUi>(EMPTY_ASSET_UI);
   const [createMode, setCreateMode] = useState<boolean>(false);
   const [addingNodeEnabled, setAddingNodeEnabled] = useState<boolean>(false);
 
-  const currentAsset = useAppSelector(selectCurrentAsset);
   const dispatch = useAppDispatch();
 
   const toggleCreateMode = () => setCreateMode(!createMode);
@@ -165,10 +166,18 @@ const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
     []
   );
 
-  const viewAssetDetails = useCallback(async (_event: React.MouseEvent, node: Node) => {
+  const showAssetDetails = useCallback(async (_event: React.MouseEvent, node: Node) => {
     if (node.type === AssetType.Room) return;
-    dispatch(selectAsset(node.data));
-    setIsDetailsPanelOpen(true);
+    try {
+      const { data } = await roomService.getRoomById(node.data.roomId);
+      const assetFound = data.assets.find(asset => `${asset.id}` === node.id);
+      if (assetFound) {
+        setCurrentAsset(assetFound);
+        setIsDetailsPanelOpen(true);
+      }
+    } catch (err) {
+      handleError(err);
+    }
   }, []);
 
   const saveRooms = async (rooms: Room[]) => {
@@ -199,7 +208,8 @@ const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
   const onUpdateAsset = async (assetId: number, name: string) => {
     const nodeIndex = nodes.findIndex(node => node.id === assetId.toString());
     if (nodeIndex !== -1) {
-      let nodeToUpdate = { ...nodes[nodeIndex], data: { ...nodes[nodeIndex].data, name: name } };
+      let nodeToUpdate = { ...nodes[nodeIndex] };
+      nodeToUpdate.data.name = name;
       let updatedNodes = [
         ...nodes.slice(0, nodeIndex),
         nodeToUpdate,
@@ -255,7 +265,7 @@ const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
           onEdgeUpdate={onEdgeUpdate}
           onEdgeUpdateStart={onEdgeUpdateStart}
           onEdgeUpdateEnd={onEdgeUpdateEnd}
-          onNodeClick={viewAssetDetails}
+          onNodeClick={showAssetDetails}
           nodesDraggable={createMode}
           edgesFocusable={createMode}
           fitView

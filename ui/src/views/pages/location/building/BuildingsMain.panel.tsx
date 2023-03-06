@@ -4,11 +4,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 
 import { useAppDispatch, useAppSelector } from "@/redux/app";
-import {
-  getFloorsByBuildingId,
-  selectBuilding,
-  selectCurrentBuildingsData,
-} from "@/redux/features";
+import { getFloorsByBuildingId, selectAllBuildingsData, selectBuilding } from "@/redux/features";
 
 import { ResizeMap, ChangeCenter } from "../common";
 import { BuildingPolygon } from "./BuildingPolygon";
@@ -25,12 +21,15 @@ interface BuildingsProps {
 const BuildingsMainPanel = ({ center, navigateToPanel }: BuildingsProps) => {
   const [mapId] = useState<string>("buildings-map");
 
-  const buildings = useAppSelector(selectCurrentBuildingsData);
+  const buildings = useAppSelector(selectAllBuildingsData);
   const dispatch = useAppDispatch();
 
   const onBuildingClick = (id: number) => {
     dispatch(getFloorsByBuildingId(id));
-    dispatch(selectBuilding(id));
+    const buildingFound = buildings.find(building => building.id === id);
+    if (buildingFound) {
+      dispatch(selectBuilding(buildingFound));
+    }
     navigateToPanel(FLOORS_MAIN);
   };
 
