@@ -1,4 +1,4 @@
-import { Container } from "reactstrap";
+import { Row } from "reactstrap";
 import { Marker, Popup } from "react-leaflet";
 
 import {
@@ -10,9 +10,11 @@ import {
 import { Location } from "@/types/domain/location-model.type";
 
 interface MarkersProps {
+  isOpen: boolean;
+  toggle: () => void;
   locations: Location[];
   category: number;
-  onPopupClick: (arg1: number, arg2: number, arg3: number) => void;
+  onPopupClick: (locationId: number, lat: number, lng: number) => void;
 }
 export const LocationMarkers = ({
   locations,
@@ -42,21 +44,24 @@ export const LocationMarkers = ({
             riseOnHover
           >
             <Popup>
-              <Container
-                className=""
-                onClick={() => onPopupClick(location.id, location.latitude, location.longitude)}
-                style={{ cursor: "pointer" }}
-              >
-                <p>
-                  {location.title}
-                  <br />
-                  {location.address}
-                  <br />
-                  {location.country}
-                  <br />
-                  {location.owner.name}
-                </p>
-              </Container>
+              <Row className="align-items-center">
+                <div className="col ">
+                  <h4 className="mb-0">
+                    <span className="text-success mr-1">●</span>
+                    <a
+                      href="#pablo"
+                      onClick={() =>
+                        onPopupClick(location.id, location.latitude, location.longitude)
+                      }
+                    >
+                      {location.title}
+                    </a>
+                  </h4>
+                  <p className="text-sm text-muted m-0 mt-2">{location.address}</p>
+                  <p className="text-sm text-muted m-0">{location.country}</p>
+                  <p className="text-sm text-muted m-0">{location.owner.name}</p>
+                </div>
+              </Row>
             </Popup>
           </Marker>
         ))}
