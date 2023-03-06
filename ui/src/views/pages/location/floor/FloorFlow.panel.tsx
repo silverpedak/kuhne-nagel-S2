@@ -35,9 +35,10 @@ interface FloorFlowProps {
 }
 
 const FloorFlowPanel = ({ rooms }: FloorFlowProps) => {
-  const { getNodes, project, addNodes, getIntersectingNodes } = useReactFlow();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const edgeUpdateSuccessful = useRef(true);
+  const { getNodes, project, addNodes, getIntersectingNodes } = useReactFlow();
+
   const [nodes, setNodes] = useNodesState(setupNodes(rooms));
   const [edges, setEdges] = useEdgesState(setupEdges(rooms));
   const [typeSelected, setTypeSelected] = useState<SelectOption>(TYPE_OPTIONS[0]);

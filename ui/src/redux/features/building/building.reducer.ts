@@ -11,7 +11,7 @@ const initialState: BuildingState = {
   entities: [
     {
       id: 1,
-      locationId: 16,
+      locationId: 1,
       status: "error",
       address: "5 Brentwood Terrace",
       zipcode: "000001",
@@ -41,7 +41,7 @@ const initialState: BuildingState = {
     },
     {
       id: 2,
-      locationId: 16,
+      locationId: 1,
       status: "warning",
       address: "6 Brentwood Terrace",
       zipcode: "HMR",
@@ -65,7 +65,7 @@ const initialState: BuildingState = {
     },
     {
       id: 3,
-      locationId: 16,
+      locationId: 1,
       status: "operational",
       address: "7 Brentwood Terrace",
       zipcode: "HMR",
