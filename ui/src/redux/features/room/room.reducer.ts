@@ -24,7 +24,7 @@ const initialState: RoomState = {
       },
       assets: [
         {
-          id: 3,
+          id: 2,
           roomId: 1,
           type: "machine",
           name: "machine_1",
@@ -39,7 +39,7 @@ const initialState: RoomState = {
           },
         },
         {
-          id: 4,
+          id: 3,
           roomId: 1,
           type: "machine",
           name: "machine_2",
@@ -55,7 +55,7 @@ const initialState: RoomState = {
           },
         },
         {
-          id: 5,
+          id: 4,
           roomId: 1,
           type: "machine",
           name: "machine_3",
@@ -71,7 +71,7 @@ const initialState: RoomState = {
           },
         },
         {
-          id: 6,
+          id: 5,
           roomId: 1,
           type: "machine",
           name: "machine_4",
@@ -95,7 +95,7 @@ const initialState: RoomState = {
           },
         },
         {
-          id: 7,
+          id: 6,
           roomId: 1,
           type: "machine",
           name: "machine_5",
@@ -113,7 +113,7 @@ const initialState: RoomState = {
       ],
     },
     {
-      id: 3,
+      id: 2,
       floorId: 2,
       name: "Office",
       roomNodeData: {
