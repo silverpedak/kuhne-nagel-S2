@@ -3,8 +3,12 @@ import { Button, Card, CardBody, CardHeader } from "reactstrap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 
-import { useAppDispatch, useAppSelector } from "@/redux/app/hooks";
-import { getFloorsByBuildingId, selectAllBuildingsData, selectBuilding } from "@/redux/features";
+import { useAppDispatch, useAppSelector } from "@/redux/app";
+import {
+  getFloorsByBuildingId,
+  selectBuilding,
+  selectCurrentBuildingsData,
+} from "@/redux/features";
 
 import { ResizeMap, ChangeCenter } from "../common";
 import { BuildingPolygon } from "./BuildingPolygon";
@@ -21,15 +25,12 @@ interface BuildingsProps {
 const BuildingsMainPanel = ({ center, navigateToPanel }: BuildingsProps) => {
   const [mapId] = useState<string>("buildings-map");
 
-  const buildings = useAppSelector(selectAllBuildingsData);
+  const buildings = useAppSelector(selectCurrentBuildingsData);
   const dispatch = useAppDispatch();
 
   const onBuildingClick = (id: number) => {
     dispatch(getFloorsByBuildingId(id));
-    const buildingFound = buildings.find(building => building.id === id);
-    if (buildingFound) {
-      dispatch(selectBuilding(buildingFound));
-    }
+    dispatch(selectBuilding(id));
     navigateToPanel(FLOORS_MAIN);
   };
 

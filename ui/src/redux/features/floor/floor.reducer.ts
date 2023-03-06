@@ -1,92 +1,91 @@
 import { EMPTY_FLOOR, Floor } from "@/types/domain";
-import { createSlice, isAnyOf, PayloadAction } from "@reduxjs/toolkit";
-
-import { AppStatusType } from "@/redux/app";
-
-import {
-  getFloorsByBuildingId,
-  updateFloor,
-  deleteFloor,
-  createFloor,
-  selectFloor,
-} from "./floor.actions";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface FloorState {
   entities: Floor[];
+  currentEntities: Floor[];
   entity: Floor;
-  status: string;
-  error: FloorError | null;
-}
-
-export interface FloorError {
-  message: string;
-  code?: number;
 }
 
 const initialState: FloorState = {
-  entities: [],
+  entities: [
+    {
+      id: 1,
+      buildingId: 1,
+      floorNr: 1,
+      name: "Manufacturing",
+      data: {
+        performance: "57%",
+        occupancy: 25,
+        machines: {
+          total: 30,
+          running: 25,
+        },
+        alerts: [
+          {
+            id: 1,
+            type: "error",
+            text: "Saw_machine_2 error",
+          },
+          {
+            id: 2,
+            type: "warning",
+            text: "Welding_robot_1 low gas",
+          },
+          {
+            id: 3,
+            type: "warning",
+            text: "Robot_2 temperature warning",
+          },
+        ],
+      },
+    },
+    {
+      id: 2,
+      buildingId: 1,
+      floorNr: 2,
+      name: "Office",
+      data: {
+        occupancy: 10,
+        performance: "80%",
+        alerts: [],
+      },
+    },
+  ],
+  currentEntities: [],
   entity: EMPTY_FLOOR,
-  status: AppStatusType.IDLE,
-  error: null,
 };
 
 export const floorSlice = createSlice({
   name: "floor",
   initialState,
-  reducers: {},
-  extraReducers(builder) {
-    builder
-      .addCase(createFloor.fulfilled, (floorState, action: PayloadAction<Floor>) => {
-        floorState.status = AppStatusType.COMPLETE;
-        floorState.entities.push(action.payload);
-        floorState.entity = action.payload;
-        floorState.error = null;
-      })
-      .addCase(deleteFloor.fulfilled, (floorState, action: PayloadAction<number>) => {
-        floorState.status = AppStatusType.COMPLETE;
-        floorState.entities = floorState.entities.filter(floor => floor.id !== action.payload);
-        floorState.error = null;
-      })
-      .addCase(getFloorsByBuildingId.fulfilled, (floorState, action: PayloadAction<Floor[]>) => {
-        floorState.status = AppStatusType.COMPLETE;
-        floorState.entities = action.payload;
-        floorState.error = null;
-      })
-      .addCase(updateFloor.fulfilled, (floorState, action: PayloadAction<Floor>) => {
-        floorState.status = AppStatusType.COMPLETE;
-        floorState.entities = floorState.entities.map(floor => {
-          return floor.id === action.payload.id ? { ...floor, ...action.payload } : floor;
-        });
-        floorState.entity = action.payload;
-        floorState.error = null;
-      })
-      .addCase(selectFloor, (floorState, action: PayloadAction<Floor>) => {
-        floorState.entity = action.payload;
-      })
-      .addMatcher(
-        isAnyOf(
-          createFloor.pending,
-          deleteFloor.pending,
-          updateFloor.pending,
-          getFloorsByBuildingId.pending
-        ),
-        floorState => {
-          floorState.status = AppStatusType.LOADING;
-        }
-      )
-      .addMatcher(
-        isAnyOf(
-          createFloor.rejected,
-          deleteFloor.rejected,
-          updateFloor.rejected,
-          getFloorsByBuildingId.rejected
-        ),
-        (floorState, { error }) => {
-          floorState.status = AppStatusType.ERROR;
-          floorState.error = error as FloorError;
-        }
-      );
+  reducers: {
+    selectFloor: (state, action: PayloadAction<number>) => {
+      state.entity =
+        state.entities.find(floor => floor.id === action.payload) || initialState.entity;
+    },
+    createFloor: (state, action: PayloadAction<Floor>) => {
+      state.entities.push(action.payload);
+      state.currentEntities.push(action.payload);
+    },
+    deleteFloor: (state, action: PayloadAction<number>) => {
+      state.entities = state.entities.filter(floor => floor.id !== action.payload);
+      state.currentEntities = state.currentEntities.filter(floor => floor.id !== action.payload);
+    },
+    updateFloor: (state, action: PayloadAction<Floor>) => {
+      state.entities = state.entities.map(floor => {
+        return floor.id === action.payload.id ? { ...floor, ...action.payload } : floor;
+      });
+      state.currentEntities = state.currentEntities.map(floor => {
+        return floor.id === action.payload.id ? { ...floor, ...action.payload } : floor;
+      });
+    },
+    getFloorsByBuildingId: (state, action: PayloadAction<number>) => {
+      state.currentEntities = state.entities.filter(floor => floor.buildingId === action.payload);
+    },
   },
 });
 
 export const floorReducer = floorSlice.reducer;
+export const { selectFloor, createFloor, deleteFloor, updateFloor, getFloorsByBuildingId } =
+  floorSlice.actions;

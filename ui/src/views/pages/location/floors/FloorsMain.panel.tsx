@@ -2,18 +2,18 @@ import { memo, useState } from "react";
 import { Card, CardHeader, CardBody, Button, Row, Col, CardTitle } from "reactstrap";
 
 import { alerts } from "@/views/components/feedback";
-import { EMPTY_FLOOR, Floor } from "@/types/domain";
+import { Floor } from "@/types/domain";
 
 import { CreateFloorPanel } from "./create/CreateFloor.panel";
 import { DetailsFloorPanel } from "./details/DetailsFloor.panel";
 
 import { BUILDINGS_MAIN, FLOOR_MAIN } from "../location.routes.const";
-import { useAppDispatch, useAppSelector } from "@/redux/app/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/app";
 import {
   createFloor,
   deleteFloor,
   getRoomsByFloorId,
-  selectAllFloorsData,
+  selectAllFloorsInBuilding,
   selectCurrentBuilding,
   selectCurrentFloor,
   selectFloor,
@@ -28,7 +28,7 @@ const FloorsMainPanel = ({ navigateToPanel }: FloorsMainProps): JSX.Element => {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
-  const floors = useAppSelector(selectAllFloorsData);
+  const floors = useAppSelector(selectAllFloorsInBuilding);
   const building = useAppSelector(selectCurrentBuilding);
   const currentFloor = useAppSelector(selectCurrentFloor);
 
@@ -37,13 +37,12 @@ const FloorsMainPanel = ({ navigateToPanel }: FloorsMainProps): JSX.Element => {
   const toggleIsEditModalOpen = () => setIsEditModalOpen(!isEditModalOpen);
   const toggleIsCreateModalOpen = () => setIsCreateModalOpen(!isCreateModalOpen);
 
-  const onViewDetails = (floor: Floor) => {
-    dispatch(selectFloor(floor));
+  const onViewDetails = (id: number) => {
+    dispatch(selectFloor(id));
     setIsEditModalOpen(true);
   };
 
   const onOpenCreate = () => {
-    dispatch(selectFloor(EMPTY_FLOOR));
     setIsCreateModalOpen(true);
   };
 
@@ -80,9 +79,9 @@ const FloorsMainPanel = ({ navigateToPanel }: FloorsMainProps): JSX.Element => {
     }
   };
 
-  const onViewFloorPlan = (floor: Floor) => {
-    dispatch(getRoomsByFloorId(floor.id));
-    dispatch(selectFloor(floor));
+  const onViewFloorPlan = (id: number) => {
+    dispatch(getRoomsByFloorId(id));
+    dispatch(selectFloor(id));
     navigateToPanel(FLOOR_MAIN);
   };
 
@@ -106,10 +105,10 @@ const FloorsMainPanel = ({ navigateToPanel }: FloorsMainProps): JSX.Element => {
                         <h4 className="text-uppercase mb-0">{`${floor.floorNr} ${floor.name}`}</h4>
                       </Col>
                       <Col sm="2" className="d-flex justify-content-end">
-                        <Button size="sm" onClick={() => onViewDetails(floor)}>
+                        <Button size="sm" onClick={() => onViewDetails(floor.id)}>
                           <i className="fa fa-pen-to-square" />
                         </Button>
-                        <Button size="sm" onClick={() => onViewFloorPlan(floor)}>
+                        <Button size="sm" onClick={() => onViewFloorPlan(floor.id)}>
                           <i className="fa fa-arrow-right" />
                         </Button>
                       </Col>

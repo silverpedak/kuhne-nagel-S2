@@ -1,10 +1,10 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { Card, CardHeader, CardBody, ButtonGroup, Button } from "reactstrap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 
-import { useAppDispatch, useAppSelector } from "@/redux/app/hooks";
-import { getAllLocations, getBuildingsByLocationId, selectAllLocationData } from "@/redux/features";
+import { useAppDispatch, useAppSelector } from "@/redux/app";
+import { getBuildingsByLocationId, selectAllLocationData } from "@/redux/features";
 
 import { ResizeMap } from "../common/ResizeMap";
 import { LocationMarkers } from "./LocationMarkers";
@@ -23,10 +23,6 @@ const WorldMapLeafletPanel = ({ setActiveTab, setCenter }: WorldMapProps): JSX.E
   const locations = useAppSelector(selectAllLocationData);
 
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(getAllLocations());
-  }, []);
 
   const showOfficeMarker = () => {
     category !== 1 ? setCategory(1) : setCategory(0);
