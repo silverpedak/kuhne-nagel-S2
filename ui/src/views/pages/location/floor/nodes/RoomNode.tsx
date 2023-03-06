@@ -5,13 +5,12 @@ import { Container } from "reactstrap";
 import { Room } from "@/types/domain";
 
 import bg1 from "@/assets/img/rooms/room_1.png";
-import bg2 from "@/assets/img/rooms/room_2.png";
 
 import "@reactflow/node-resizer/dist/style.css";
 
 export type MyNodeProps = NodeProps<Room>;
 
-const images: { [key: number]: string } = { 1: bg1, 2: bg2 };
+const images: { [key: number]: string } = { 1: bg1 };
 
 const RoomNode: React.FC<MyNodeProps> = ({ id, data }) => {
   return (
