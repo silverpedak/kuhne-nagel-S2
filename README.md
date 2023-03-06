@@ -2,6 +2,8 @@
 
 This is the session 2 of the Kuhne Nagel intership I took part in.
 
+[DEMO](https://silverpedak.github.io/kn-s2/)
+
 ### My contributions:
 
 - api [Go to](https://github.com/silverpedak/Kuhne-Nagel-Intership-S2/tree/main/api)
