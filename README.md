@@ -1,6 +1,6 @@
 # Kuhne-Nagel-Intership-S2
 
-This is the session 2 of the Kuhne Nagel intership I took part in.
+This is the session 2 of the Kuhne Nagel intership I took part in. With demo
 
 [DEMO](https://silverpedak.github.io/kn-s2/)
 
